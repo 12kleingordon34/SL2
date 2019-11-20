@@ -1,2 +1,2 @@
-# SL2
-Codebase for Q2, SL
+# Supervised Learning -- CW2
+Initialisation
