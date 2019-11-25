@@ -20,9 +20,9 @@ class Perceptron(object):
         
         m,d = X.shape
         
-        self.num_classes = y.shape[1]
+        self.num_classes = np.atleast_2d(y).shape[1]
         self.M = np.zeros(self.num_classes)
-        self.R = np.max(np.sum(X*X,axis=1))
+        self.R = np.max(np.sum(np.power(X*X),2),axis=1)
         
         self.w = np.zeros((d,self.num_classes))
         
@@ -41,4 +41,46 @@ class Perceptron(object):
         
         return(np.sign(self.predict_proba(self,X)))
 
+
+class KernelPerceptron(object):
+    
+    def __init__(self,kernel,k_params):
+        
+        self.w = np.array([])
+        self.num_classes = 1
+        self.M = 0
+        self.R = 0
+        self.train_set = 0
+        self.k_params = k_params
+        self.kernel = kernel
+        
+    def build_gram(self,X):
+        
+        return(self.kernel(X,X,self.k_params))
+        
+    def train(self,X,y):
+        self.train_set = X
+        m,d = X.shape
+        self.num_classes = np.atleast_2d(y).shape[1]
+        self.M = np.zeros(self.num_classes)
+        self.R = np.max(np.sum(np.power(X*X),2),axis=1)
+        
+        gram = self.build_gram(X,k_params)
+        
+        self.w = np.zeros(m)
+        
+        for i in range(m):
+            if np.sign(np.dot(self.w,gram[:,i])*y[i]) != y[i]:
+                self.w[i] += 1
+                self.M+=1
+    
+    def predict_proba(self,x):
+        
+        k = self.kernel(self.train_set,x)
+        return(np.dot(self.w,k))
+        
+    def predict(self,x):
+        
+        return(np.sign(self.predict_proba(x)))
+        
             
