@@ -90,5 +90,5 @@ def polynomial(X, Y, d):
     """
     n1 = X.shape[0]
     n2 = np.atleast_2d(Y).shape[]
-    product = np.inner(X, Y)
+    product = np.dot(X, np.atleast_2d(Y).T)
     return np.power(product, d)
