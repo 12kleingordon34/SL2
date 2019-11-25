@@ -71,7 +71,7 @@ class KernelPerceptron(object):
         
         for i in range(m):
             if np.sign(np.dot(self.w,gram[:,i])*y[i]) != y[i]:
-                self.w[i] += 1
+                self.w[i] += y[i]
                 self.M+=1
     
     def predict_proba(self,x):
@@ -83,4 +83,12 @@ class KernelPerceptron(object):
         
         return(np.sign(self.predict_proba(x)))
         
-            
+def polynomial(X, Y, d):
+    """
+    Calculates a d-order polynomial kernel for
+    data points x_i, x_j
+    """
+    n1 = X.shape[0]
+    n2 = np.atleast_2d(Y).shape[]
+    product = np.inner(X, Y)
+    return np.power(product, d)
