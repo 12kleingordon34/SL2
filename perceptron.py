@@ -89,6 +89,6 @@ def polynomial(X, Y, d):
     data points x_i, x_j
     """
     n1 = X.shape[0]
-    n2 = np.atleast_2d(Y).shape[]
+    n2 = np.atleast_2d(Y).T.shape[0]
     product = np.dot(X, np.atleast_2d(Y).T)
     return np.power(product, d)
