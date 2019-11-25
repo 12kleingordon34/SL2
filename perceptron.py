@@ -7,6 +7,8 @@ Created on Fri Nov 15 10:18:03 2019
 
 import numpy as np
 
+import kernels
+
 class Perceptron(object):
     
     def __init__(self):
