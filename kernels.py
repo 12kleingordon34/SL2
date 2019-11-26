@@ -9,7 +9,7 @@ def gaussian_kernel_row(data,anchor,sigma):
     """Gaussian kernel for an array of points with parameter sigma
     Returns one row of the kernel matrix.
     """
-    return np.exp(-np.sum((data-anchor)*(data-anchor),axis=1)/(2*sigma**2))
+    return np.exp(-sigma * np.sum((data-anchor)*(data-anchor),axis=1))
 
 
 
