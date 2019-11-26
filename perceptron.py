@@ -66,7 +66,7 @@ class KernelPerceptron(object):
     def train(self,X,y):
         self.train_set = X
         m,d = X.shape
-        self.num_classes = np.atleast_2d(y).shape[1]
+        self.num_classes = np.atleast_2d(y).shape[0]
         self.M = np.zeros(self.num_classes)
         self.R = np.max(np.sum(np.power(X*X),2),axis=1)
         
