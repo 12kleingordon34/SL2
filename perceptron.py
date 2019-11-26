@@ -48,6 +48,7 @@ class KernelPerceptron(object):
         self.train_set = 0
         self.k_params = k_params
         self.kernel = kernel
+        self.gram = None
         
     def build_gram(self,X):
         return(self.kernel(X,X,self.k_params))
@@ -59,12 +60,12 @@ class KernelPerceptron(object):
         self.M = np.zeros(self.num_classes)
         self.R = np.max(np.sum(np.power(X*X,2),axis=1))
         
-        gram = self.build_gram(X)
+        self.gram = self.build_gram(X)
         
         self.w = np.zeros(m)
         
         for i in range(m):
-            if np.sign(np.dot(self.w,gram[:,i])*y[i]) != y[i]:
+            if np.sign(np.dot(self.w,self.gram[:,i])*y[i]) != y[i]:
                 self.w[i] += y[i]
                 self.M+=1
     
