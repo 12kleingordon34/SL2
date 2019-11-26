@@ -29,12 +29,27 @@ def train_test_split(X,y,percentage=1/3):
     return(X_train,X_test,y_train,y_test)
     
     
-def preprocessing(X,y_col=0):
+def preprocessing(X,y_col=0,y_obs= None,y_neg = -1):
     """
     Pre-processing for image data. Splits matrix into
     predictors and observation
+    
+    Inputs:
+        X: data matrix containing both predictors and observations
+        y_col: column(s) containing oberservations
+        y_obs: value of the positive y observation (for 1vsAll)
+        y_neg: value of negative encoding either -1 (default) or 0 
+    
     """
     y_train = X[:,y_col]
+    
+    if y_obs is not None:
+        
+        if y_neg == -1:
+            y_train = -1 + 2*(y_train==y_obs)
+        elif y_neg ==0:
+            y_train = 1*(y_train==y_obs)
+    
     X_train = np.delete(X,y_col,axis=1)
     
     return(X_train,y_train)
