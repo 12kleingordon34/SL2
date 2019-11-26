@@ -68,9 +68,9 @@ class KernelPerceptron(object):
         m,d = X.shape
         self.num_classes = np.atleast_2d(y).shape[0]
         self.M = np.zeros(self.num_classes)
-        self.R = np.max(np.sum(np.power(X*X),2),axis=1)
+        self.R = np.max(np.sum(np.power(X*X,2),axis=1))
         
-        gram = self.build_gram(X,k_params)
+        gram = self.build_gram(X)
         
         self.w = np.zeros(m)
         
@@ -81,7 +81,7 @@ class KernelPerceptron(object):
     
     def predict_proba(self,x):
         
-        k = self.kernel(self.train_set,x)
+        k = self.kernel(self.train_set,x,self.k_params)
         return(np.dot(self.w,k))
         
     def predict(self,x):
