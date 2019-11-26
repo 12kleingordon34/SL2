@@ -5,7 +5,9 @@ Created on Tue Nov 26 18:02:06 2019
 @author: dantr
 """
 import numpy as np
-def train_test_split(X,y,percentage=1/3):
+
+
+def train_test_split(X, y, percentage=1/3, seed=None):
     """ Splits a dataset into training and test sets
         with a random permutation
     
@@ -18,6 +20,8 @@ def train_test_split(X,y,percentage=1/3):
     """
     l,n = X.shape
     # randomly permute the data
+    if seed:
+        np.random.seed(seed)
     perm = np.random.permutation(np.arange(l))
     # split data proportionally
     index = perm[:int((1-percentage)*l)]

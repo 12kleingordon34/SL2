@@ -12,7 +12,6 @@ def gaussian_kernel_row(data,anchor,sigma):
     return np.exp(-sigma * np.sum((data-anchor)*(data-anchor),axis=1))
 
 
-
 def radial_basis_kernel(s,t,sigma):
     """ Builds a Gaussian Kernel matrix
         Inputs:
@@ -30,7 +29,8 @@ def radial_basis_kernel(s,t,sigma):
     for i in range(l1):
         K[i,:] = gaussian_kernel_row(s, t[i,:],sigma)
     return(K)
-    
+
+
 def polynomial_kernel(X, Y, d):
     """
     Calculates a d-order polynomial kernel for
