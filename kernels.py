@@ -28,7 +28,7 @@ def radial_basis_kernel(s,t,sigma):
     
     K = np.zeros((l1,l2))
     for i in range(l1):
-        K[i,:] = gaussian_kernel_row(X,X[i,:],sigma)
+        K[i,:] = gaussian_kernel_row(s, t[i,:],sigma)
     return(K)
     
 def polynomial_kernel(X, Y, d):

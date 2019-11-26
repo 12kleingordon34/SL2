@@ -28,6 +28,25 @@ def train_test_split(X,y,percentage=1/3):
     y_test = y[negindex]
     return(X_train,X_test,y_train,y_test)
     
+def data_split(X,y_col=0):
+    """Pre-processing for image data. Splits matrix into
+    predictors and observation"""
+    
+    y_train = X[:,y_col]
+    X_train = np.delete(X,y_col,axis=1)
+    
+    return(X_train,y_train)
+    
+def y_encode(y,y_obs,y_neg=-1):
+    """Encodes the positive y-value"""
+    
+    if y_neg == -1:
+            y_train = -1 + 2*(y==y_obs)
+    elif y_neg ==0:
+        y_train = 1*(y==y_obs)
+        
+    return(y_train)
+            
     
 def preprocessing(X,y_col=0,y_obs= None,y_neg = -1):
     """
@@ -53,5 +72,10 @@ def preprocessing(X,y_col=0,y_obs= None,y_neg = -1):
     X_train = np.delete(X,y_col,axis=1)
     
     return(X_train,y_train)
+    
+    
+    
+    
+    
     
     
