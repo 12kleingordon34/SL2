@@ -33,4 +33,4 @@ class Winnow(object):
         
     def predict(self,x):
         
-        return(1*(self.predict_proba(x) >= w.size)
+        return(1*(self.predict_proba(x) >= w.size))
