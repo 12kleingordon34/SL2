@@ -13,7 +13,7 @@ Multiclass classification methods:
 One against all: 
   -- requires multiple training sessions
   -- slower prediction
-  
+This is a test  
   
 Classification methods - Not perceptron:
 
