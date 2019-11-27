@@ -65,7 +65,7 @@ class KernelPerceptron(object):
         self.w = np.zeros(m)
         
         for i in range(m):
-            if np.sign(np.dot(self.w,self.gram[:,i])*y[i]) != y[i]:
+            if np.sign(np.dot(self.w,self.gram[:,i])) != y[i]:
                 self.w[i] += y[i]
                 self.M+=1
     
