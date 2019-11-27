@@ -16,8 +16,21 @@ class OneNN(object):
         
     def predict(self,X):
         
-        dist = self.x @ X.T
+        dist = self._build_dist(X)
         idx = np.argmin(dist,axis=0)
         
         return(self.y[idx])
+        
+    def _build_dist(self,X):
+        l1,n1 = self.x.shape
+        l2,n2 = X.shape
+        assert n1==n2
+    
+        K = np.zeros((l1,l2))
+        for i in range(l1):
+            K[i,:] = self._build_dist_row(X[i,:])
+            return(K)
+        
+    def _build_dist_row(self,X:):
+        return  np.sum(np.power(self.x-X,2),axis=1)
         
