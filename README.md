@@ -1,6 +1,13 @@
 # Supervised Learning -- CW2
 Initialisation
 
+## Comments on Part I Q4:
+
+Things to consider
+* Count number of times each image is predicted incorrectly
+* select the incorrect images with the largest distance from the hyperplane
+* Combine both methods -- select the data which has been most poorly predicted with the largest hyperplane distance
+* Keep running epochs until only 5 items are incorrectly predicted (may never happen -- to be studied further)
 
 Multiclass classification methods:
 One against all: 
