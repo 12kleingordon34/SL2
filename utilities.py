@@ -53,6 +53,30 @@ def stratified_k_fold(P, X, y, k, n=1, seed=0):
     return classification_accuracy
 
 
+def multiperceptron_stratified_k_fold(list_P, X, y, k, n=1, seed=0):
+    """
+    Runs a stratified k-fold cross validation on
+    a list of perceptrons list_P using dataset (X, y). Split can
+    be controlled through a choice of seed
+
+    THIS IS A TEST, MAY NOT BE NECESSARY. Note that this is not
+    vectorised. May need to work on this later.
+    """
+    class_acc = {P.k_params: [] for P in P_list}
+    for i in range(n):
+        skf = StratifiedKFold(n_splits=k, random_state=seed+i)
+        for train_i, test_i in skf.split(X, y):
+            for P in list_P:
+                X_train, X_test = X[train_index], X[test_index]
+                y_train, y_test = y[train_index], y[test_index]
+                acc, failed_pred = perceptron_learning(
+                    P, X_train, X_test, y_train, y_test
+                )
+                class_acc[P.k_params].append(acc)
+        class_acc.append(k_fold_acc)
+    return class_acc
+
+
 def perceptron_learning(P, X_train, X_test, y_train, y_test):
     """
     Trains perceptron P with (X_train, y_train) and evaluates
