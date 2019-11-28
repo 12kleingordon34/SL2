@@ -13,7 +13,6 @@ class Perceptron(object):
         self.num_classes = 1
         self.M = 0
         self.data_hash = None
-        
 
     def train(self,X,y):
         m,d = X.shape
@@ -58,7 +57,6 @@ class KernelPerceptron(object):
     def build_gram(self,X):
         return(self.kernel(X,X,self.k_params))
 
-
     def train(self, X, y):
         self.train_set = X
         m,d = X.shape
@@ -70,13 +68,10 @@ class KernelPerceptron(object):
             self.data_hash = training_hash
             self.w = np.zeros(m)
 
-        self._training_run(y, gram, m)
-
         for i in range(m):
-            if np.sign(np.dot(self.w,gram[:,i])) != y[i]:
+            if np.sign(np.dot(self.w, gram[:,i])) != y[i]:
                 self.w[i] += y[i]
                 self.M+=1
-    
 
     def predict_proba(self,x):
         k = self.kernel(self.train_set,x,self.k_params)
