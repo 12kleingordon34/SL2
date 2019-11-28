@@ -4,6 +4,8 @@ Created on Tue Nov 26 18:02:06 2019
 
 @author: dantr
 """
+from datetime import datetime
+
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
@@ -50,8 +52,8 @@ def multip_strat_kfold(P_list, X, y, k, epochs=1, seed=0):
             for i, P in enumerate(P_list):
                 acc = []
                 X_train, X_test = X[train_index], X[test_index]
-                print("X-Val: {} Epoch: {} Training Perceptron {}".format(
-                    k_val, e+1, i
+                print("TIME: {} X-Val: {} Epoch: {} Training Perceptron {}".format(
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'), k_val, e+1, i
                 ))
                 y_train = y_encode(y[train_index], i)
                 y_test = y_encode(y[test_index], i)
