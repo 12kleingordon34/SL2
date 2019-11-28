@@ -5,9 +5,10 @@ Created on Tue Nov 26 18:02:06 2019
 @author: dantr
 """
 import numpy as np
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
-def train_test_split(X, y, percentage=1/3, seed=None):
+def stratified_basic_validation(P, X, y, percentage=1/3, n=1, seed=0):
     """ Splits a dataset into training and test sets
         with a random permutation
     
@@ -18,19 +19,53 @@ def train_test_split(X, y, percentage=1/3, seed=None):
         Outputs:
             X_train,X_test,y_train,y_test: split data
     """
-    l,n = X.shape
-    # randomly permute the data
-    if seed:
-        np.random.seed(seed)
-    perm = np.random.permutation(np.arange(l))
-    # split data proportionally
-    index = perm[:int((1-percentage)*l)]
-    negindex = perm[int((1-percentage)*l):]
-    X_train = X[index,:]
-    X_test = X[negindex,:]
-    y_train = y[index]
-    y_test = y[negindex]
-    return(X_train,X_test,y_train,y_test)
+    classification_accuracy = []
+    for i in range(n):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=percentage, random_state=seed+i
+        )
+        acc, failed_pred = perceptron_learning(
+            P, X_train, X_test, y_train, y_test
+        )
+        classification_accuracy.append(acc)
+    
+    return classification_accuracy
+
+
+def stratified_k_fold(P, X, y, k, n=1, seed=0):
+    """
+    Runs a stratified k-fold cross validation on
+    perceptron P using dataset (X, y). Split can
+    be controlled through a choice of seed
+    """
+    classification_accuracy = []
+    for i in range(n):
+        skf = StratifiedKFold(n_splits=k, random_state=seed)
+        k_fold_acc = []
+        for train_i, test_i in skf.split(X, y):
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            acc, failed_pred = perceptron_learning(
+                P, X_train, X_test, y_train, y_test
+            )
+            k_fold_acc.append(acc)
+        classification_accuracy.append(k_fold_acc)
+    return classification_accuracy
+
+
+def perceptron_learning(P, X_train, X_test, y_train, y_test):
+    """
+    Trains perceptron P with (X_train, y_train) and evaluates
+    on (X_test, y_test). Returns the prediction accuracy and
+    the indices of missclassified elements.
+    """
+    P.train(X_train, y_train)
+    y_hat = P.predict(X_test)
+
+    failed_predictions = y_hat != y_test
+
+    return 1 - failed_predictions.mean(), failed_predictions
+
     
 def data_split(X,y_col=0):
     """Pre-processing for image data. Splits matrix into
