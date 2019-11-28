@@ -12,17 +12,19 @@ class Perceptron(object):
         self.w = np.array([])
         self.num_classes = 1
         self.M = 0
+        self.data_hash = None
         
 
-    def train(self,X,y,num_epochs=1):
+    def train(self,X,y):
         m,d = X.shape
         self.num_classes = np.atleast_2d(y).shape[0]
-        self.M = np.zeros(self.num_classes)
+        #self.M = np.zeros(self.num_classes)
         
-        self.w = np.zeros((d,self.num_classes))
-        for e in range(num_epochs):
-            self._training_run(X, y, m)
-
+        training_hash = hash(tuple(y))
+        if self.data_hash != training_hash:
+            self.data_hash = training_hash
+            self.w = np.zeros(m)
+        self._training_run(X, y, m)
         
     def _training_run(self, X, y, m):
         for t in range(m):
@@ -50,25 +52,26 @@ class KernelPerceptron(object):
         self.train_set = 0
         self.k_params = k_params
         self.kernel = kernel
+        self.data_hash = None
         
 
     def build_gram(self,X):
         return(self.kernel(X,X,self.k_params))
 
 
-    def train(self, X, y, num_epochs=1):
+    def train(self, X, y):
         self.train_set = X
         m,d = X.shape
         self.num_classes = np.atleast_2d(y).shape[0]
         self.M = np.zeros(self.num_classes)
         gram = self.build_gram(X)
-        self.w = np.zeros(m)
+        training_hash = hash(tuple(y))
+        if self.data_hash != training_hash:
+            self.data_hash = training_hash
+            self.w = np.zeros(m)
 
-        for e in range(num_epochs):
-            self._training_run(y, gram, m)
+        self._training_run(y, gram, m)
 
-        
-    def _training_run(self, y, gram, m):
         for i in range(m):
             if np.sign(np.dot(self.w,gram[:,i])) != y[i]:
                 self.w[i] += y[i]
