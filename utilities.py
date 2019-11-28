@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
-def stratified_basic_validation(P, X, y, percentage=1/3, n=1, seed=0):
+def stratified_basic_validation(P, X, y, percentage=1/5, n=1, seed=0):
     """ Splits a dataset into training and test sets
         with a random permutation
     
@@ -23,9 +23,7 @@ def stratified_basic_validation(P, X, y, percentage=1/3, n=1, seed=0):
     for i in range(n):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=percentage, random_state=seed+i
-        )
-        acc, failed_pred = perceptron_learning(
-            P, X_train, X_test, y_train, y_test
+        ) acc, failed_pred = perceptron_learning( P, X_train, X_test, y_train, y_test
         )
         classification_accuracy.append(acc)
     
@@ -53,7 +51,7 @@ def stratified_k_fold(P, X, y, k, n=1, seed=0):
     return classification_accuracy
 
 
-def multiperceptron_stratified_k_fold(list_P, X, y, k, n=1, seed=0):
+def multiperceptron_stratified_k_fold(P_list, X, y, k, n=1, seed=0):
     """
     Runs a stratified k-fold cross validation on
     a list of perceptrons list_P using dataset (X, y). Split can
@@ -63,32 +61,32 @@ def multiperceptron_stratified_k_fold(list_P, X, y, k, n=1, seed=0):
     vectorised. May need to work on this later.
     """
     class_acc = {P.k_params: [] for P in P_list}
-    for i in range(n):
-        skf = StratifiedKFold(n_splits=k, random_state=seed+i)
-        for train_i, test_i in skf.split(X, y):
-            for P in list_P:
-                X_train, X_test = X[train_index], X[test_index]
-                y_train, y_test = y[train_index], y[test_index]
-                acc, failed_pred = perceptron_learning(
-                    P, X_train, X_test, y_train, y_test
-                )
-                class_acc[P.k_params].append(acc)
-        class_acc.append(k_fold_acc)
-    return class_acc
+    skf = StratifiedKFold(n_splits=k, random_state=seed)
+    for train_index, test_index in skf.split(X, y):
+        print(type(P_list))
+        predictions = np.zeros((len(y), len(P_list)))
+        for i, P in enumerate(P_list):
+            acc = []
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y_encode(y[train_index], i), y_encode(y[test_index], i)
+            y_prob = perceptron_learning(
+                P, X_train, X_test, y_train, y_test, num_epoch=1
+            )
+            predictions[:, i] = y_prob
+    predictions = np.argmax(predictions, axis=1)
+    return predictions, class_acc
 
 
-def perceptron_learning(P, X_train, X_test, y_train, y_test):
+def perceptron_learning(P, X_train, X_test, y_train, y_test, num_epoch):
     """
     Trains perceptron P with (X_train, y_train) and evaluates
     on (X_test, y_test). Returns the prediction accuracy and
     the indices of missclassified elements.
     """
-    P.train(X_train, y_train)
-    y_hat = P.predict(X_test)
+    P.train(X_train, y_train, num_epoch)
+    y_prob = P.predict_proba(X_test)
 
-    failed_predictions = y_hat != y_test
-
-    return 1 - failed_predictions.mean(), failed_predictions
+    return y_prob
 
     
 def data_split(X,y_col=0):
