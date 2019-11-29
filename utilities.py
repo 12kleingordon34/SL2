@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
-def stratified_k_fold(P_list, X, y, k, epochs=1, seed=0):
+def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
     """
     Runs a stratified k-fold cross validation on
     perceptron P using dataset (X, y). Split can
@@ -20,17 +20,24 @@ def stratified_k_fold(P_list, X, y, k, epochs=1, seed=0):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=percentage, random_state=seed, stratify=y
     )
-    predictions = np.zeros((len(y_test), len(P_list)))
-    for i, P in enumerate(P_list):
-        print("Training Perceptron {}".format(k_val, i))
-        k_fold_acc = []
-        y_prob = perceptron_learning(
-            P, X_train, X_test, y_train, y_test, num_epoch
+    k_fold_acc = []
+    for e in range(epochs):
+        y_pred = perceptron_learning(
+            P, X_train, X_test, y_train
         )
-        predictions[:, i] = y_prob
-    predictions = np.argmax(predictions, axis=1)
-    accuracy_error = (predictions == y_test).mean()
-    return accuracy_error
+        error = (y_pred == y_test).mean()
+        epoch_error.append(error)
+    train_error = (P.predict(X_train) == y_train).mean()
+    test_error = (y_pred == y_test).mean()
+    y_confusion = np.concatenate(
+        (y_pred[None,:].T, y_test[None,:].T),
+        axis=1
+    )
+    # Select only incorrect predictions
+    y_confusion = y_confusion[
+        (y_confusion[:,0] != y_confusion[:,1])
+    ]
+    return train_error, test_error, y_confusion
 
 
 def multip_strat_kfold(P_list, X, y, k, epochs=1, seed=0):
@@ -69,16 +76,46 @@ def multip_strat_kfold(P_list, X, y, k, epochs=1, seed=0):
     return accuracy_error
 
 
-def perceptron_learning(P, X_train, X_test, y_train, y_test, num_epoch):
+def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
+    """
+    Runs a stratified k-fold cross validation on
+    a list of perceptrons list_P using dataset (X, y). Split can
+    be controlled through a choice of seed
+
+    THIS IS A TEST, MAY NOT BE NECESSARY. Note that this is not
+    vectorised. May need to work on this later.
+    """
+    skf = StratifiedKFold(n_splits=k, random_state=seed)
+    accuracy_error = []
+    k_val= 1
+    for train_index, test_index in skf.split(X, y):
+        epoch_error = []
+        for e in range(epochs):
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            print("TIME: {} X-Val: {} Epoch: {}".format(
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S'), k_val, e+1
+            ))
+            y_pred = perceptron_learning(
+                P, X_train, X_test, y_train 
+            )
+            error = (y_pred == y_test).mean()
+            epoch_error.append(error)
+        k_val += 1
+        accuracy_error.append(epoch_error)
+    return accuracy_error
+
+
+def perceptron_learning(P, X_train, X_test, y_train):
     """
     Trains perceptron P with (X_train, y_train) and evaluates
     on (X_test, y_test). Returns the prediction accuracy and
     the indices of missclassified elements.
     """
     P.train(X_train, y_train)
-    y_prob = P.predict_proba(X_test)
+    y_pred = P.predict(X_test)
 
-    return y_prob
+    return y_pred
 
     
 def data_split(X,y_col=0):
