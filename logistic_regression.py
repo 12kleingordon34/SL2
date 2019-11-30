@@ -5,16 +5,18 @@ Created on Thu Nov 28 23:13:10 2019
 @author: dantr
 """
 import numpy as np
+import matplotlib.pyplot as plt
 
 class LogisticRegression(object):
     
-    def __init__(self):
+    def __init__(self,lr = None,reg=0):
         self.w = 0
         self.w_grad =0
         self.labels=0
         self.num_labels = 0
-        self.lr = None
-        self.reg = 0.1
+        self.lr = lr
+        self.reg = reg
+        self.b = 1
         
     def train(self,X,y):
         
@@ -22,20 +24,22 @@ class LogisticRegression(object):
         
         n,m = X.shape
         if self.lr is None:
-            self.lr = 1/n
+            self.lr = 1/(100*n)
         
         
         y_o = self._one_hot_encode(y)
         
         self.w = np.random.normal(0,1,(m,self.num_labels))
-        
-        for i in range(100):
+        self.b = np.ones((self.num_labels))
+        cost = np.zeros(10000)
+        for i in range(10000):
             
             self._GD(X,y_o)
-            
-            print("Cost: {}".format(self._cost(X,y_o)))
-            
+            cost[i] = self._cost(X,y_o)
+            if i%100 ==0:
+                print("Cost: {}".format(self._cost(X,y_o)))
         
+        plt.plot(cost)
         
     def predict_proba(self,x):
         return(self.softmax(x))
@@ -46,7 +50,7 @@ class LogisticRegression(object):
         
         
     def softmax(self,Y):
-        scores = np.dot(Y,self.w)
+        scores = np.dot(Y,self.w) + self.b
         m = np.max(scores)
         num = np.exp(scores-m)
         denom = np.sum(num,axis=1,keepdims=True)
@@ -57,9 +61,10 @@ class LogisticRegression(object):
         #for i in range(self.w.shape[1]):
         yhat = self.softmax(x)
         diff = yhat - y
-        #print(diff)
-        step = np.dot(x.T,diff)/x.shape[0]
+        #print(np.sum(diff))
+        step = np.dot(x.T,diff)#/x.shape[0]
         #print(step)
+        self.b -= np.sum(diff,axis=0)
         self.w -= self.lr*(step - self.reg*self.w)
         #print(self.w)
         
@@ -72,7 +77,7 @@ class LogisticRegression(object):
         yhat = self.softmax(x)
         cross = self._cross_entropy(yhat,y)
         
-        return(np.mean(cross) + 0.5 *self.reg * np.sum(np.power(self.w,2)))
+        return(np.sum(cross) + 0.5 *self.reg * np.sum(self.w * self.w))
     
     def _one_hot_encode(self,y):
         self.labels = np.array(list(set(y)))
