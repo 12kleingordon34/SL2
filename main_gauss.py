@@ -85,8 +85,8 @@ def d_hyperparameter_selection(Perceptron,
         d_prime_list.append(d_prime)
         train_errors.append(train_error)
         test_errors.append(test_error)
-        confusion_vals = np.concatenate((full_confusion, y_confusion))
-    return np.array([d_prime_list, train_errors, test_errors]), confusion_vals
+        full_confusion = np.concatenate((full_confusion, y_confusion))
+    return np.array([d_prime_list, train_errors, test_errors]), full_confusion
 
 
 def main():
