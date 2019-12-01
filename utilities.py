@@ -20,13 +20,10 @@ def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=percentage, random_state=seed, stratify=y
     )
-    k_fold_acc = []
     for e in range(epochs):
         y_pred = perceptron_learning(
             P, X_train, X_test, y_train
         )
-        error = (y_pred == y_test).mean()
-        epoch_error.append(error)
     train_error = (P.predict(X_train) == y_train).mean()
     test_error = (y_pred == y_test).mean()
     y_confusion = np.concatenate(
@@ -49,7 +46,7 @@ def multip_strat_kfold(P_list, X, y, k, epochs=1, seed=0):
     THIS IS A TEST, MAY NOT BE NECESSARY. Note that this is not
     vectorised. May need to work on this later.
     """
-    skf = StratifiedKFold(n_splits=k, random_state=seed)
+    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=seed)
     accuracy_error = []
     k_val= 1
     for train_index, test_index in skf.split(X, y):
@@ -85,7 +82,8 @@ def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
     THIS IS A TEST, MAY NOT BE NECESSARY. Note that this is not
     vectorised. May need to work on this later.
     """
-    skf = StratifiedKFold(n_splits=k, random_state=seed)
+    print("Seed: {}".format(seed))
+    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=seed)
     accuracy_error = []
     k_val= 1
     for train_index, test_index in skf.split(X, y):
