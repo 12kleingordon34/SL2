@@ -18,6 +18,7 @@ class LogisticRegression(object):
         self.reg = reg
         self.b = 1
         
+
 #    def train(self,X,y,mini_batch=5):
 #        
 #        n,m = X.shape
@@ -78,6 +79,7 @@ class LogisticRegression(object):
             cost[k] = self._cost(X,y_o)
         print("Cost: {}".format(self._cost(X,y_o)))
         plt.plot(cost[:k])
+
         
     def predict_proba(self,x):
         return(self.softmax(x))
@@ -108,21 +110,26 @@ class LogisticRegression(object):
 #        print(denom)
 #        return(num/denom)
         
+
         
     def _GD(self,x,y):
         #for i in range(self.w.shape[1]):
         yhat = self.softmax(x)
         diff = yhat - y
         #print(np.sum(diff))
+
         step = np.dot(x.T,diff)/x.shape[0]
         #print(step)
         self.b = self.b - self.lr*(np.mean(diff,axis=0))
         self.w = self.w - self.lr*(step - self.reg*self.w)
+
         #print(self.w)
         
     def _cross_entropy(self,yhat,y):
         
+
         return(-np.sum(y*np.log(yhat+1e-8),axis=1)) #+ 0.5 *self.reg * np.sum(np.power(self.w,2)))
+
         
     def _cost(self,x,y):
         
