@@ -47,6 +47,10 @@ class LogisticRegression(object):
         if self.lr is None:
             self.lr = 1#/(1*n)
         
+        if mini_batch == 0:
+            mini_batch= 1
+        elif mini_batch is None or mini_batch == "max":
+            mini_batch = n
         
         y_o = self._one_hot_encode(y)#[:,:-1]
         
@@ -68,8 +72,12 @@ class LogisticRegression(object):
                 print("Cost: {}".format(self._cost(X,y_o)))
             if abs(cost[i]-cost[i-1])< tol:
                 break
+        self.lr = 0.01
+        for k in range(i+1,i+3):
+            self._GD(X,y_o)
+            cost[k] = self._cost(X,y_o)
         print("Cost: {}".format(self._cost(X,y_o)))
-        plt.plot(cost)
+        plt.plot(cost[:k])
         
     def predict_proba(self,x):
         return(self.softmax(x))
@@ -81,10 +89,24 @@ class LogisticRegression(object):
         
     def softmax(self,Y):
         scores = np.dot(Y,self.w) + self.b
-        m = np.max(scores)
+        #print(scores)
+        m = np.max(scores,axis=1,keepdims=True)
         num = np.exp(scores-m)
         denom = np.sum(num,axis=1,keepdims=True)
+        #print(num)
+        #print(denom)
         return(num/denom)
+        
+#    def softmax2(self,Y):
+#        scores = np.dot(Y,self.w) + self.b
+#        print(scores)
+#        m = np.max(scores,axis=1,keepdims=True)
+#        num = np.exp(scores-m)
+#        denom = np.sum(num,axis=1,keepdims=True)
+#        print(num)
+#        print(np.max(num))
+#        print(denom)
+#        return(num/denom)
         
         
     def _GD(self,x,y):
@@ -94,7 +116,7 @@ class LogisticRegression(object):
         #print(np.sum(diff))
         step = np.dot(x.T,diff)/x.shape[0]
         #print(step)
-        self.b = self.b - np.mean(diff,axis=0)
+        self.b = self.b - self.lr*(np.mean(diff,axis=0))
         self.w = self.w - self.lr*(step - self.reg*self.w)
         #print(self.w)
         
