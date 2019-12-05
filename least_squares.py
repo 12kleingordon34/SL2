@@ -24,6 +24,6 @@ class LinearRegression(object):
         
         yhat = self.predict(x)
         
-        return(-1 + 2*(yhat > 0))
+        return(np.sign(yhat))
         
         
