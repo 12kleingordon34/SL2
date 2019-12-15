@@ -6,6 +6,10 @@ Created on Wed Dec 11 12:57:01 2019
 """
 import numpy as np
 from pattern_generators import JALB
+from least_squares import LinearRegression
+from winnow import Winnow
+from perceptron import Perceptron
+from knn import OneNN
 
 def find_least_m(n, algorithm,X_test,y_test):
     
@@ -24,11 +28,13 @@ def find_least_m(n, algorithm,X_test,y_test):
         
         error = np.mean(algorithm.predict(X_test)==y_test)
         
-        
-    
     return(m)
     
-
+def find_avg_least_m(n,algorithm,num_runs=50):
+    
+    X_test,y_test = 
+    
+    
         
         
     
