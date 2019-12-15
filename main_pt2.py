@@ -32,7 +32,18 @@ def find_least_m(n, algorithm,X_test,y_test):
     
 def find_avg_least_m(n,algorithm,num_runs=50):
     
-    X_test,y_test = 
+    X_test,y_test = JALB(n,min(pow(2,n),1000))
+    
+    M = np.zeros(num_runs)
+    
+    for i in range(num_runs):
+        
+        M[i] = find_least_m(n,algorithm,X_test,y_test)
+        
+    return(np.mean(M),np.std(M))
+    
+
+
     
     
         
