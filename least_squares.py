@@ -14,15 +14,15 @@ class LinearRegression(object):
         
     def train(self,X,y):
         
-        self.w = np.linalg.solve(X.T@X,X.T@y)
+        self.w = np.linalg.pinv(X.T@X)@X.T@y
         
-    def predict(self,x):
+    def _predict(self,x):
         
         return(x@self.w)
         
-    def classify(self,x):
+    def predict(self,x):
         
-        yhat = self.predict(x)
+        yhat = self._predict(x)
         
         return(np.sign(yhat))
         
