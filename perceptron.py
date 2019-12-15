@@ -22,19 +22,19 @@ class Perceptron(object):
         training_hash = hash(tuple(y))
         if self.data_hash != training_hash:
             self.data_hash = training_hash
-            self.w = np.zeros(m)
+            self.w = np.zeros(d)
         self._training_run(X, y, m)
         
     def _training_run(self, X, y, m):
         for t in range(m):
             yhat = np.sign(np.dot(X[t,:],self.w))
             if yhat*y[t] <= 0:
-                self.w += y[t]*X[t,:,None]
+                self.w += y[t]*X[t,:]
                 self.M += 1
                 
 
     def predict_proba(self,X):
-        if self.w.shape[1]==1:
+        if self.w.shape[0]==self.w.size:
            return(np.dot(X,self.w).flatten())
         return(np.dot(X,self.w))
         

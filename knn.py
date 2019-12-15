@@ -31,6 +31,6 @@ class OneNN(object):
             K[i,:] = self._build_dist_row(X[i,:])
             return(K)
         
-    def _build_dist_row(self,X:):
+    def _build_dist_row(self,X):
         return  np.sum(np.power(self.x-X,2),axis=1)
         
