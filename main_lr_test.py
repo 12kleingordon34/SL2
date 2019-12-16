@@ -19,7 +19,7 @@ def validate_tolerance(X, y, tol_list, reg):
         X, y, test_size=0.2, random_state=0, stratify=y
     )
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
-    accuracy = np.zeros((5, 10))
+    accuracy = np.zeros((5, len(tol_list)))
     i = 0
     for train_index, test_index in skf.split(X, y):
         X_train, X_test = X[train_index], X[test_index]
@@ -30,7 +30,11 @@ def validate_tolerance(X, y, tol_list, reg):
             y_pred = lr.predict(X_test)
             acc = (y_pred == y_test).mean()
             accuracy[i,j]  = acc
-            print("Tolerance: {}, Accuracy: {}".format(tol, acc))
+                print(
+                    "Q2 -- Run {}, Fold {}, Tol: {}, Accuracy: {}".format(
+                        i+1, k+1, tol, acc
+                    )
+                )
         i += 1
     statistics = np.zeros((2, len(tol_list)))
     statistics[0, :] = np.mean(accuracy, 0)
@@ -101,15 +105,15 @@ def main():
     X,y = data_split(data,y_col=0)
 
     # Investigate effect of tolerance
-#    tol_list = [0.001*(tol+1) for tol in range(0, 20, 1)]
-#    reg = 0.1
-#    xval_tolerance_acc = validate_tolerance(X, y, tol_list, reg)
-#    np.savetxt(
-#        'lr_tol_variable_selection_w_reg_{}.csv'.format(reg),
-#        xval_tolerance_acc,
-#        delimiter=',',
-#        fmt='%10.20f'
-#    )
+    tol_list = [0.001*(tol+1) for tol in range(0, 20, 1)]
+    reg = 0.1
+    xval_tolerance_acc = validate_tolerance(X, y, tol_list, reg)
+    np.savetxt(
+        'lr_tol_variable_selection_w_reg_{}.csv'.format(reg),
+        xval_tolerance_acc,
+        delimiter=',',
+        fmt='%10.20f'
+    )
 
     # Optimal tolerance derived from X-val
     tol = 0.05
@@ -117,7 +121,7 @@ def main():
     n = 3
     xval_reg_stats = q2_regularised(X, y, n, reg_list, tol)
     np.savetxt(
-        'lr_reg_variable_selection.csv',
+        'lr_reg_variable_selection_n_{}.csv'.format(n),
         xval_reg_stats,
         delimiter=',',
         fmt='%10.20f'
