@@ -10,10 +10,13 @@ from scipy import spatial
 
 class OneNN(object):
     
-    def __init__(self,X,y):
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        
+    def train(self.X,y):
         self.x = X
         self.y = y
-        
         
     def predict(self,X):
         dist = self._build_dist(X)
