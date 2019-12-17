@@ -43,14 +43,15 @@ class kNN(object):
     def train(self, X, y):
         self.x = X
         self.y = y
-        print("Creating tree")
         self.tree = spatial.KDTree(X)
 
     def predict(self, X_test, k=1):
         assert (type(k) == int) and (k > 0)
 
-        print("Querying tree")
+        # Find indexes and distances of nearest neighbours
+        # to test points
         dist, ind = self.tree.query(X_test, k=k)
+        weights = 1/dist
         len_test = X_test.shape[0]
         y_pred = np.zeros(len_test)
         for row in range(len_test):
@@ -59,12 +60,12 @@ class kNN(object):
             opt_weight = 0
             for c in unique_classes:
                 if k == 1:
-                    weight = dist[row]
+                    weight = weights[row]
                     if weight > opt_weight:
                         opt_weight = weight
                         c_optimal = c
                 else:
-                    weight = sum(dist[row][self.y[ind[row]]==c])
+                    weight = sum(weights[row][self.y[ind[row]]==c])
                     if weight > opt_weight:
                         opt_weight = weight
                         c_optimal = c
