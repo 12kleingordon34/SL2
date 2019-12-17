@@ -48,16 +48,18 @@ class kNN(object):
     def predict(self, X_test, k=1):
         assert (type(k) == int) and (k > 0)
 
-        # Find indexes and distances of nearest neighbours
-        # to test points
+        # Find indexes and distances of nearest neighbours to test points
         dist, ind = self.tree.query(X_test, k=k)
+        # Create Minkowski weights
         weights = 1/dist
         len_test = X_test.shape[0]
         y_pred = np.zeros(len_test)
+        # Classify each row in test set
         for row in range(len_test):
             unique_classes = np.unique(self.y[ind][row])
             c_optimal = 0
             opt_weight = 0
+            # Find class with the greatest sum(weights*c_counts)
             for c in unique_classes:
                 if k == 1:
                     weight = weights[row]
@@ -69,7 +71,5 @@ class kNN(object):
                     if weight > opt_weight:
                         opt_weight = weight
                         c_optimal = c
-           #         print(c, weight)
-           # print("C Optimal: {}".format(c_optimal))
             y_pred[row] = c_optimal
         return y_pred
