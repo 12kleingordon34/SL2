@@ -30,11 +30,11 @@ def validate_tolerance(X, y, tol_list, reg):
             y_pred = lr.predict(X_test)
             acc = (y_pred == y_test).mean()
             accuracy[i,j]  = acc
-                print(
-                    "Q2 -- Run {}, Fold {}, Tol: {}, Accuracy: {}".format(
-                        i+1, k+1, tol, acc
-                    )
+            print(
+                "Q2 -- Fold {}, Tol: {}, Accuracy: {}".format(
+                    i+1, tol, acc
                 )
+            )
         i += 1
     statistics = np.zeros((2, len(tol_list)))
     statistics[0, :] = np.mean(accuracy, 0)
