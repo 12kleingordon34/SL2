@@ -54,6 +54,7 @@ def plot_trend(M_mean,M_std):
     
     
 if __name__=="__main__":
+    A = ["Perceptron()","Winnow()","LinearRegression","OneNN()"]
     alg = Winnow()
     neg = 0
     mean,std = find_trend_m(alg,neg=neg)
