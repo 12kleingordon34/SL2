@@ -24,7 +24,7 @@ class Winnow(object):
             yhat = 1* (np.dot(self.w,X[i,:]) >= n)
             
             if yhat != y[i]:
-                self.w = self.w * np.power(2, (y[i]-yhat)*X[i,:])
+                self.w = self.w * np.power(2., (y[i]-yhat)*X[i,:])
                 self.M += 1
                 
     def predict_proba(self,x):
@@ -33,4 +33,4 @@ class Winnow(object):
         
     def predict(self,x):
         
-        return(1*(self.predict_proba(x) >= w.size))
+        return(1*(self.predict_proba(x) >= self.w.size))
