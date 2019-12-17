@@ -14,7 +14,7 @@ class OneNN(object):
         self.x = 0
         self.y = 0
         
-    def train(self.X,y):
+    def train(X,y):
         self.x = X
         self.y = y
         
