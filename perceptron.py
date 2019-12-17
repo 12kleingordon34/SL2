@@ -128,3 +128,63 @@ class VectorisedKernelPerceptron(object):
     def predict(self,x):
         y_prob = self.predict_proba(x)
         return np.argmax(y_prob, axis=1)
+
+
+class onevsonePerceptron(object):
+    def __init__(self,kernel,k_params):
+        self.W = np.array([])
+        self.num_classes = 1
+        self.M = 0
+        self.train_set = 0
+        self.k_params = k_params
+        self.kernel = kernel
+        self.data_hash = None
+        self.p_index = np.genfromtxt('onevsonepairs.csv', delimiter=',')
+        
+
+    def build_gram(self,X):
+        return(self.kernel(X,X,self.k_params))
+
+    def train(self, X, y):
+        self.train_set = X
+        m,d = X.shape
+        n_vals = self.p_index.shape[0]
+        self.num_classes = np.atleast_2d(y).shape[0]
+        self.M = np.zeros(self.num_classes)
+        gram = self.build_gram(X)
+
+        training_hash = hash(tuple(y))
+        if self.data_hash != training_hash:
+            self.data_hash = training_hash
+            self.W = np.zeros((m, n_vals))
+
+        for i in range(m):
+            y_m = y[i]
+            Y = (self.p_index[:, 0] == y_m)
+            Y = Y - (self.p_index[:, 1] == y_m).astype(int)
+            beta = np.dot(gram[i,:], self.W) 
+            gamma = (np.sign(beta) != Y)
+
+            # Apply update if prediction was incorrect
+            self.W[i,:] += np.multiply(Y, gamma)
+            #print("y_m", y_m)
+            #print("Y",Y)
+            #print("gram[i,:]", gram[i,:])
+            #print("beta", beta)
+            #print("gamma", gamma)
+            #print("y*gamma", np.multiply(Y, gamma))
+
+    def predict_proba(self,x):
+        k = self.kernel(self.train_set,x,self.k_params)
+        return np.dot(k.T, self.W)
+
+    def predict(self,x):
+        y_prob = self.predict_proba(x)
+        arg_max = np.argmax(abs(y_prob), axis=1)
+        sign = np.sign(y_prob[range(len(arg_max)), arg_max])
+        predictions = self.p_index[arg_max.astype(int), ((1-sign)/2).astype(int)]
+#        print(y_prob[:2])
+#        print(arg_max[:2])
+#        print(sign[:2])
+#        print(predictions[:2])
+        return predictions

@@ -26,6 +26,7 @@ def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
         )
     train_error = (P.predict(X_train) == y_train).mean()
     test_error = (y_pred == y_test).mean()
+    print("Train error: {} Test error: {}".format(train_error, test_error))
     y_confusion = np.concatenate(
         (y_pred[None,:].T, y_test[None,:].T),
         axis=1
@@ -99,6 +100,7 @@ def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
             )
             error = (y_pred == y_test).mean()
             epoch_error.append(error)
+            print("Test error: {}".format(error))
         k_val += 1
         accuracy_error.append(epoch_error)
     return accuracy_error
