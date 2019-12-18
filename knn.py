@@ -18,21 +18,29 @@ class OneNN(object):
         self.x = X
         self.y = y
         
-    def predict(self,X):
-        dist = self._build_dist(X)
-        idx = np.argmin(dist,axis=0)
-        return(self.y[idx])
+#    def predict(self,X):
+#        dist = self._build_dist(X)
+#        idx = np.argmin(dist,axis=1)
+#        return(self.y[idx])
         
     def _build_dist(self,X):
         l1,n1 = self.x.shape
         l2,n2 = X.shape
         assert n1==n2
     
-        K = np.zeros((l1,l2))
-        for i in range(l1):
+        K = np.zeros((l2,l1))
+        for i in range(l2):
             K[i,:] = self._build_dist_row(X[i,:])
-            return(K)
-        
+        return(K)
+    
+    def predict(self,X):
+        l1,n1 = X.shape
+        idx = np.zeros(l1)
+        for i in range(l1):
+            idx[i] = np.argmin(self._build_dist_row(X[i,:]))
+        return(self.y[idx.astype(int)])
+
+    
     def _build_dist_row(self,X):
         return  np.sum(np.power(self.x-X,2),axis=1)
         
