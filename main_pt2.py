@@ -57,8 +57,7 @@ def find_least_m_exp(n, algorithm,X_test,y_test,start=0,neg=-1):
         p = int(np.log2(m))
         while error >0.1:
             p+=1
-            m = np.pow(2,p)
-            X_train, y_train = JALB(n,m,neg=neg,seed=seed)
+            m = np.power(2,p)
             X_train, y_train = JALB(n,m,neg=neg,seed=seed)
             algorithm.train(X_train,y_train)
             error = np.mean(algorithm.predict(X_test)!=y_test)
@@ -67,6 +66,25 @@ def find_least_m_exp(n, algorithm,X_test,y_test,start=0,neg=-1):
     def binary_search(m):
         p2 = int(np.log2(m))
         p1 = p2-1
+        low = np.power(2,p1)
+        high = m
+        while low < high:
+            mid = low+high/2
+            X_train, y_train = JALB(n,mid,neg=neg,seed=seed)
+            algorithm.train(X_train,y_train)
+            error = np.mean(algorithm.predict(X_test)!=y_test)
+            if error < 0.1:
+                high = mid
+            elif error >0.1:
+                low = mid
+            elif error == 0.1:
+                return(mid)
+        return(high)
+        
+    m = exponential_search(m)
+    m = binary_search(m)
+    return(m)
+        
         
         
         
