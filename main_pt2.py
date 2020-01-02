@@ -9,7 +9,7 @@ from pattern_generators import JALB
 from least_squares import LinearRegression
 from winnow import Winnow
 from perceptron import Perceptron
-from knn import OneNN
+from knn import OneNN, kNN
 import matplotlib.pyplot as plt
 
 # Linear search
@@ -26,21 +26,24 @@ def find_least_m(n, algorithm,X_test,y_test,start=0,neg=-1):
     return(m)
     
 
-def find_avg_least_m(n,algorithm,start=0,num_runs=50,neg=-1):
+def find_avg_least_m(n,algorithm,start=0,num_runs=10,neg=-1):
     #size = int(np.log(1./0.05)/(2*(0.005)**2)) 
     X_test,y_test = JALB(n,6000,neg=neg)
     M = np.zeros(num_runs)
     for i in range(num_runs):
-        M[i] = find_least_m(n,algorithm,X_test,y_test,start=start,neg=neg)
+        if type(algorithm)==kNN:
+            M[i] = find_least_m_exp(n,algorithm,X_test,y_test,start=start,neg=neg)
+        else:
+            M[i] = find_least_m(n,algorithm,X_test,y_test,start=start,neg=neg)
         start = max(0,int(M[i]-10))
     return(np.mean(M),np.std(M))
     
 
-def find_trend_m(algorithm,neg=-1):
+def find_trend_m(algorithm,neg=-1,max_n=17):
     start =0
-    M_mean = np.zeros(99)
-    M_std = np.zeros(99)
-    for i in range(2,101):
+    M_mean = np.zeros(max_n-1)
+    M_std = np.zeros(max_n-1)
+    for i in range(2,max_n+1):
         M_mean[i-2],M_std[i-2] = find_avg_least_m(i,algorithm,start=start,neg=neg)
         start = max(0,int(M_mean[i-2]-5))
     return(M_mean,M_std)
@@ -68,7 +71,7 @@ def find_least_m_exp(n, algorithm,X_test,y_test,start=0,neg=-1):
         p1 = p2-1
         low = np.power(2,p1)
         high = m
-        while low < high:
+        while low < high-1:
             mid = low+high/2
             X_train, y_train = JALB(n,mid,neg=neg,seed=seed)
             algorithm.train(X_train,y_train)
@@ -101,12 +104,18 @@ def plot_trend(M_mean,M_std,title):
     
 if __name__=="__main__":
     # there's definitely a better way to do this
-    A = ["Perceptron()","Winnow()","LinearRegression()","OneNN()"]
-    Atitle = ["Perceptron","Winnow", "Least Squares","One nearest-neighbours"]
-    for j, i in enumerate(A):
-        alg = eval(i)
-        neg = -1
-        if i == "Winnow()":
-            neg = 0
-        mean,std = find_trend_m(alg,neg=neg)
-        plot_trend(mean,std,Atitle[j])
+#    A = ["Perceptron()","Winnow()","LinearRegression()",]
+#    Atitle = ["Perceptron","Winnow", "Least Squares","One nearest-neighbours"]
+#    for j, i in enumerate(A):
+#        alg = eval(i)
+#        neg = -1
+#        if i == "Winnow()":
+#            neg = 0
+#        mean,std = find_trend_m(alg,neg=neg)
+#        plot_trend(mean,std,Atitle[j])
+
+    A = kNN()
+    mean,std = find_trend_m(alg,neg=neg)
+    plot_trend(mean,std,'OneNN')
+
+
