@@ -183,8 +183,4 @@ class onevsonePerceptron(object):
         arg_max = np.argmax(abs(y_prob), axis=1)
         sign = np.sign(y_prob[range(len(arg_max)), arg_max])
         predictions = self.p_index[arg_max.astype(int), ((1-sign)/2).astype(int)]
-#        print(y_prob[:2])
-#        print(arg_max[:2])
-#        print(sign[:2])
-#        print(predictions[:2])
         return predictions
