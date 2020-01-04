@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
-def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
+def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0, conf=True):
     """
     Runs a stratified k-fold cross validation on
     perceptron P using dataset (X, y). Split can
@@ -27,15 +27,18 @@ def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
     train_error = (P.predict(X_train) == y_train).mean()
     test_error = (y_pred == y_test).mean()
     print("Train error: {} Test error: {}".format(train_error, test_error))
-    y_confusion = np.concatenate(
-        (y_pred[None,:].T, y_test[None,:].T),
-        axis=1
-    )
-    # Select only incorrect predictions
-    y_confusion = y_confusion[
-        (y_confusion[:,0] != y_confusion[:,1])
-    ]
-    return train_error, test_error, y_confusion
+    if conf:
+        y_confusion = np.concatenate(
+            (y_pred[None,:].T, y_test[None,:].T),
+            axis=1
+        )
+        # Select only incorrect predictions
+        y_confusion = y_confusion[
+            (y_confusion[:,0] != y_confusion[:,1])
+        ]
+        return train_error, test_error, y_confusion
+    else:
+        return train_error, test_error
 
 
 def multip_strat_kfold(P_list, X, y, k, epochs=1, seed=0):
