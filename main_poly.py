@@ -94,24 +94,24 @@ def main():
     X,y = data_split(data,y_col=0)
     poly_d = list(range(1, 8))
 
-#    d_errors, full_errors = kernel_d_selection(
-#        VectorisedKernelPerceptron,X,y,k=5,d_vals = list(range(1, 8)),epochs = 8
-#    )
-#    q1_train, q1_test = q1(
-#        VectorisedKernelPerceptron, X, y, poly_d, percentage=0.2, epochs=10, seed=0, runs=20
-#    )
-#    np.savetxt('q1_train_errors.csv', q1_train, delimiter=',', fmt='%10.20f')
-#    np.savetxt('q1_test_errors.csv', q1_test, delimiter=',', fmt='%10.20f')
+    d_errors, full_errors = kernel_d_selection(
+        VectorisedKernelPerceptron,X,y,k=5,d_vals = list(range(1, 8)),epochs = 8
+    )
+    q1_train, q1_test = q1(
+        VectorisedKernelPerceptron, X, y, poly_d, percentage=0.2, epochs=10, seed=0, runs=20
+    )
+    np.savetxt('q1_train_errors_poly.csv', q1_train, delimiter=',', fmt='%10.20f')
+    np.savetxt('q1_test_errors_poly.csv', q1_test, delimiter=',', fmt='%10.20f')
 
     d_prime_errors, confusion = d_hyperparameter_selection(
         VectorisedKernelPerceptron, X, y, d_vals=poly_d, k=5, epochs=10, seed=0, runs=20
     )
-    np.savetxt('confusion.csv', confusion, delimiter=',', fmt='%i')
-    np.savetxt('d_prime_errors.csv', d_prime_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('confusion_poly.csv', confusion, delimiter=',', fmt='%i')
+    np.savetxt('d_prime_errors_poly.csv', d_prime_errors, delimiter=',', fmt='%10.20f')
 
-#    np.savetxt('d_errors.csv', d_errors, delimiter=',', fmt='%10.20f')
-#    np.savetxt('full_errors.csv', full_errors, delimiter=',', fmt='%10.20f')
-#
+    np.savetxt('d_errors_poly.csv', d_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('full_errors_poly.csv', full_errors, delimiter=',', fmt='%10.20f')
+
 
 if __name__ == '__main__':
     main()
