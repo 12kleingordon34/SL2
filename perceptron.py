@@ -5,6 +5,7 @@ Created on Fri Nov 15 10:18:03 2019
 @author: ucabdbt
 """
 import numpy as np
+from scipy import stats
 
 
 class Perceptron(object):
@@ -167,12 +168,6 @@ class onevsonePerceptron(object):
 
             # Apply update if prediction was incorrect
             self.W[i,:] += np.multiply(Y, gamma)
-            #print("y_m", y_m)
-            #print("Y",Y)
-            #print("gram[i,:]", gram[i,:])
-            #print("beta", beta)
-            #print("gamma", gamma)
-            #print("y*gamma", np.multiply(Y, gamma))
 
     def predict_proba(self,x):
         k = self.kernel(self.train_set,x,self.k_params)
@@ -180,7 +175,9 @@ class onevsonePerceptron(object):
 
     def predict(self,x):
         y_prob = self.predict_proba(x)
-        arg_max = np.argmax(abs(y_prob), axis=1)
-        sign = np.sign(y_prob[range(len(arg_max)), arg_max])
-        predictions = self.p_index[arg_max.astype(int), ((1-sign)/2).astype(int)]
-        return predictions
+        y_prob = np.sign(y_prob)
+        predictions = np.zeros(y_prob.shape)
+        for row in range(y_prob.shape[0]):
+            predictions[row,:][y_prob[row,:]==1] = self.p_index[y_prob[row,:]==1,0]
+            predictions[row,:][y_prob[row,:]==-1] = self.p_index[y_prob[row,:]==-1,1]
+        return stats.mode(predictions, axis=1).mode.T
