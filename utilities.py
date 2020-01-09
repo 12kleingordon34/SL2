@@ -102,8 +102,9 @@ def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
                 P, X_train, X_test, y_train 
             )
             error = (y_pred == y_test).mean()
+            train_error = (P.predict(X_train) == y_train).mean()
             epoch_error.append(error)
-            print("Test error: {}".format(error))
+            print("Test error: {} Train error: {}".format(error, train_error))
         k_val += 1
         accuracy_error.append(epoch_error)
     return accuracy_error

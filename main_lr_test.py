@@ -31,7 +31,7 @@ def validate_tolerance(X, y, tol_list, reg):
             acc = (y_pred == y_test).mean()
             accuracy[i,j]  = acc
             print(
-                "Q2 -- Fold {}, Tol: {}, Accuracy: {}".format(
+                "Q1 -- Fold {}, Tol: {}, Accuracy: {}".format(
                     i+1, tol, acc
                 )
             )
@@ -48,7 +48,8 @@ def q1_regularised(X, y, reg_list, tol):
     the classification accuracy on the test set using
     the values in reg_list
     """
-    accuracy = np.zeros((20, len(reg_list)))
+    test_accuracy = np.zeros((20, len(reg_list)))
+    train_accuracy = np.zeros((20, len(reg_list)))
     for i in range(20):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=i, stratify=y
@@ -59,13 +60,12 @@ def q1_regularised(X, y, reg_list, tol):
             lr.train(X_train, y_train, tol=tol)
             y_pred = lr.predict(X_test)
             acc = (y_pred == y_test).mean()
-            accuracy[i,j]  = acc
-            print("Reg Parameter: {}, Accuracy: {}".format(reg, acc))
-
-    statistics = np.zeros((2, len(reg_list)))
-    statistics[0, :] = np.mean(accuracy, 0)
-    statistics[1, :] = np.std(accuracy, 0)
-    return accuracy
+            test_accuracy[i,j]  = acc
+            print("Reg Parameter: {}, Tol: {} Accuracy: {}".format(reg, tol, acc))
+            y_pred_train = lr.predict(X_train)
+            train_acc = (y_pred_train == y_train).mean()
+            train_accuracy[i,j]  = train_acc
+    return test_accuracy, train_accuracy
 
 
 def q2_regularised(X, y, n, reg_list, tol):
@@ -96,33 +96,92 @@ def q2_regularised(X, y, n, reg_list, tol):
     statistics = np.zeros((2, len(reg_list)))
     statistics[0, :] = np.mean(accuracy, axis=(0, 2))
     statistics[1, :] = np.std(accuracy, axis=(0, 2))
-    return statistics
+
+    # To find best k value
+    reg_mean = np.mean(accuracy, axis=2)
+    reg_max_index = np.argmax(reg_mean, axis=1)
+    reg_std = np.std(accuracy, axis=2)
+    optimal_params = [reg_list[i] for i in reg_max_index]
+    print(optimal_params)
+    optimal_errors = []
+    for i, reg in enumerate(optimal_params):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=i, stratify=y
+        )
+        lr = LogisticRegression(lr=1, reg=reg)
+        lr.train(X_train, y_train, tol=tol)
+        y_pred = lr.predict(X_test)
+        error = (y_pred == y_test).mean()
+        print("Reg : {}, Error : {}".format(reg, error))
+        optimal_errors.append(error)
+
+    optimal_mean = np.mean(optimal_errors)
+    optimal_std = np.std(optimal_errors)
+    print(optimal_errors)
+    print(reg_max_index)
+    print("Optimal Mean Error: {} Optimal Std Error: {}".format(optimal_mean, optimal_std))
+    return statistics, reg_mean, reg_std, reg_max_index
 
 
 def main():
     # Load Data
     data = np.loadtxt("zipcombo.dat")
     X,y = data_split(data,y_col=0)
+    
+    tol_list = [0.001*(tol+1) for tol in range(0, 10, 1)]
+    tol= 0.004
+    reg_list = [2**(-i) for i in range(5, 15)]
+
+    #q1_test_acc, q1_train_acc = q1_regularised(X, y, reg_list, tol)
+    #np.savetxt(
+    #    'lr_q1_train.csv',
+    #    q1_train_acc,
+    #    delimiter=',',
+    #    fmt='%10.20f'
+    #)
+    #np.savetxt(
+    #    'lr_q1_test.csv',
+    #    q1_test_acc,
+    #    delimiter=',',
+    #    fmt='%10.20f'
+    #)
 
     # Investigate effect of tolerance
-    tol_list = [0.001*(tol+1) for tol in range(0, 20, 1)]
-    reg = 0.1
-    xval_tolerance_acc = validate_tolerance(X, y, tol_list, reg)
+#    tol_list = [0.001*(tol+1) for tol in range(0, 20, 1)]
+#    reg = 0.001
+#    xval_tolerance_acc = validate_tolerance(X, y, tol_list, reg)
+#    np.savetxt(
+#        'lr_tol_variable_selection_w_reg_{}.csv'.format(reg),
+#        xval_tolerance_acc,
+#        delimiter=',',
+#        fmt='%10.20f'
+#    )
+#
+    # Optimal tolerance derived from X-val
+    tol = 0.004
+    n = 20
+    xval_reg_stats, reg_mean, reg_std, reg_max_index = q2_regularised(X, y, n, reg_list, tol)
     np.savetxt(
-        'lr_tol_variable_selection_w_reg_{}.csv'.format(reg),
-        xval_tolerance_acc,
+        'lr_reg_mean.csv'.format(n),
+        reg_mean,
         delimiter=',',
         fmt='%10.20f'
     )
-
-    # Optimal tolerance derived from X-val
-    tol = 0.05
-    reg_list = [2**(-i) for i in range(1, 15)]
-    n = 3
-    xval_reg_stats = q2_regularised(X, y, n, reg_list, tol)
+    np.savetxt(
+        'lr_reg_std.csv'.format(n),
+        reg_std,
+        delimiter=',',
+        fmt='%10.20f'
+    )
     np.savetxt(
         'lr_reg_variable_selection_n_{}.csv'.format(n),
         xval_reg_stats,
+        delimiter=',',
+        fmt='%10.20f'
+    )
+    np.savetxt(
+        'lr_reg_max_index.csv',
+        reg_max_index,
         delimiter=',',
         fmt='%10.20f'
     )
