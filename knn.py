@@ -38,6 +38,9 @@ class OneNN(object):
         
 
 class kNN(object):
+    """
+    Weighted (Minkowski) kNN classifier
+    """
     def __init__(self):
         self.x= None
         self.y = None
@@ -64,11 +67,13 @@ class kNN(object):
             opt_weight = 0
             # Find class with the greatest sum(weights*c_counts)
             for c in unique_classes:
+                # If k=1 select nearest neighbour
                 if k == 1:
                     weight = weights[row]
                     if weight > opt_weight:
                         opt_weight = weight
                         c_optimal = c
+                # If k>1 consider all minkowski weights of k nearest neighbours
                 else:
                     weight = sum(weights[row][self.y[ind[row]]==c])
                     if weight > opt_weight:

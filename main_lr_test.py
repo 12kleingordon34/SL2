@@ -11,9 +11,13 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 def validate_tolerance(X, y, tol_list, reg):
     """
     Perform 5-fold validation on dataset X, y with
-    varying tolerances specified by tol_list
+    varying tolerances specified by tol_list. Used to 
+    investigate the effect of varying tolerances on 
+    test accuracy.
 
-    Returns a 5 x len(tol_list) array
+    Returns
+    accuracy: np.array: 5 x len(tol_list) array of 
+        test accuracies for each k-fold run
     """
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=0, stratify=y
@@ -45,8 +49,16 @@ def validate_tolerance(X, y, tol_list, reg):
 def q1_regularised(X, y, reg_list, tol):
     """
     For 20 different test/train splits, calculate
-    the classification accuracy on the test set using
-    the values in reg_list
+    the classification accuracy on the test/train set using
+    the regularisation values in reg_list. The algorithm's
+    tolerance is given as a single value which has already
+    been predetermined.
+
+    Returns
+    test_accuracy: np.array: test accuracies for 20 runs,
+        across all regularisation values
+    train_accuracy: np.array: train accuracies for 20 runs,
+        across all regularisation values
     """
     test_accuracy = np.zeros((20, len(reg_list)))
     train_accuracy = np.zeros((20, len(reg_list)))
@@ -73,6 +85,14 @@ def q2_regularised(X, y, n, reg_list, tol):
     For n different 5-fold test/train splits, calculate
     the classification accuracy on the test set using
     the values in reg_list
+
+    Return
+    statistics: np.array: mean and std for x-validated
+        test errors for taken across all 20 runs and k folds
+    reg_mean: np.array: test accuracies averaged over k-folds
+    reg_std: np.array: test accuracies standard deviations over k-folds
+    reg_max_index: list[int]: indexes of most performant hyperparameter
+        over each run
     """
     accuracy = np.zeros((n, len(reg_list), 5))
     for i in range(n):
@@ -97,13 +117,15 @@ def q2_regularised(X, y, n, reg_list, tol):
     statistics[0, :] = np.mean(accuracy, axis=(0, 2))
     statistics[1, :] = np.std(accuracy, axis=(0, 2))
 
-    # To find best k value
     reg_mean = np.mean(accuracy, axis=2)
+    # To find best regularisation value index
     reg_max_index = np.argmax(reg_mean, axis=1)
     reg_std = np.std(accuracy, axis=2)
+    # To find best regularisation value
     optimal_params = [reg_list[i] for i in reg_max_index]
     print(optimal_params)
     optimal_errors = []
+    # Rerun test x-validation using optimised hyperparameter
     for i, reg in enumerate(optimal_params):
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=i, stratify=y
@@ -132,31 +154,31 @@ def main():
     tol= 0.004
     reg_list = [2**(-i) for i in range(5, 15)]
 
-    #q1_test_acc, q1_train_acc = q1_regularised(X, y, reg_list, tol)
-    #np.savetxt(
-    #    'lr_q1_train.csv',
-    #    q1_train_acc,
-    #    delimiter=',',
-    #    fmt='%10.20f'
-    #)
-    #np.savetxt(
-    #    'lr_q1_test.csv',
-    #    q1_test_acc,
-    #    delimiter=',',
-    #    fmt='%10.20f'
-    #)
+    q1_test_acc, q1_train_acc = q1_regularised(X, y, reg_list, tol)
+    np.savetxt(
+        'lr_q1_train.csv',
+        q1_train_acc,
+        delimiter=',',
+        fmt='%10.20f'
+    )
+    np.savetxt(
+        'lr_q1_test.csv',
+        q1_test_acc,
+        delimiter=',',
+        fmt='%10.20f'
+    )
 
     # Investigate effect of tolerance
-#    tol_list = [0.001*(tol+1) for tol in range(0, 20, 1)]
-#    reg = 0.001
-#    xval_tolerance_acc = validate_tolerance(X, y, tol_list, reg)
-#    np.savetxt(
-#        'lr_tol_variable_selection_w_reg_{}.csv'.format(reg),
-#        xval_tolerance_acc,
-#        delimiter=',',
-#        fmt='%10.20f'
-#    )
-#
+    tol_list = [0.001*(tol+1) for tol in range(0, 20, 1)]
+    reg = 0.001
+    xval_tolerance_acc = validate_tolerance(X, y, tol_list, reg)
+    np.savetxt(
+        'lr_tol_variable_selection_w_reg_{}.csv'.format(reg),
+        xval_tolerance_acc,
+        delimiter=',',
+        fmt='%10.20f'
+    )
+
     # Optimal tolerance derived from X-val
     tol = 0.004
     n = 20
