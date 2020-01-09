@@ -2,7 +2,7 @@
 Code by Daniel Manela and Daniel Trent (T1, 2019/20)
 
 ## Code Summary
-The codebase falls roughly into groups. The algorithm classes themselves, the main files used to solve the CW problems, and accompanying utility files to fascilitate our solutions.
+The codebase falls roughly into groups. The algorithm classes themselves, the main files used to solve the CW problems, and accompanying utility files to fascilitate our solutions. Requires scipy, sklearn and numpy to run.
 
 ### Algorithms
 * `kernels.py`: Contains the kernels 
