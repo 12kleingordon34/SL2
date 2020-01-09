@@ -9,6 +9,14 @@ from utilities import stratified_k_fold, vectorised_p_strat_kfold
 
 
 def q1(Perceptron, X, y, d_vals, percentage, epochs=1, seed=0, runs=1):
+    """
+    Calculate the test/train accuracies for polynomial perceptrons
+    indexed by parameters within the list d_vals.
+
+    Returns
+    test_e_full: list[float]: test accuracies for each run
+    train_e_full: list[float]: train accuracies for each run
+    """
     train_e_full = [d_vals]
     test_e_full = [d_vals]
     print("Question 1")
@@ -33,6 +41,17 @@ def q1(Perceptron, X, y, d_vals, percentage, epochs=1, seed=0, runs=1):
 
 
 def kernel_d_selection(Perceptron, X, y, d_vals, k=5, epochs=1, seed=0):
+    """
+    Perform stratified k-fold cross validation to determine
+    the most performant hyper parameter contained within the
+    list d_vals
+
+    Returns
+    np.array(d_errors): test accuracies for all x-validated
+        hyperparameters contained within d_vals
+    errors: np.array: test/train errors for each d parameter
+        across multiple epochs.
+    """
     d_errors = np.zeros((len(d_vals), 2))
     errors = np.zeros((2*len(d_vals), epochs+2))
     for i, d in enumerate(d_vals):
@@ -45,6 +64,7 @@ def kernel_d_selection(Perceptron, X, y, d_vals, k=5, epochs=1, seed=0):
         xval_error_std = np.array(error).std(axis=0)
         errors[(2*i):(2*i+2), :2] = [[d, 99999], [d, -99999]]
         errors[(2*i):(2*i+2), 2:] = [xval_error_mean, xval_error_std]
+        # Select the errors from the most recent epoch
         d_errors[i, :] = [xval_error_mean[-1], xval_error_std[-1]]
     return np.array(d_errors), errors
 
@@ -58,6 +78,14 @@ def d_hyperparameter_selection(Perceptron,
                                seed=0,
                                runs=20):
     """
+    Perform multiple runs of k-fold cross validation using
+    hyperparameters within the list d_vals.
+
+    Returns
+    np.array: each row contains the most performant hyperparameter
+        for a single run, along with its train and test accuracy.
+    full_confusion: np.array: confusion values derived from test
+        runs of most optimal hyperparameter
     """
     d_prime_list = []
     train_errors = []

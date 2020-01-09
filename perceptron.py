@@ -9,6 +9,9 @@ from scipy import stats
 
 
 class Perceptron(object):
+    """
+    Single class non-kernel perceptron
+    """
     def __init__(self):
         self.w = np.array([])
         self.num_classes = 1
@@ -18,7 +21,6 @@ class Perceptron(object):
     def train(self,X,y):
         m,d = X.shape
         self.num_classes = np.atleast_2d(y).shape[0]
-        #self.M = np.zeros(self.num_classes)
         
         training_hash = hash(tuple(y))
         if self.data_hash != training_hash:
@@ -45,6 +47,9 @@ class Perceptron(object):
 
 
 class KernelPerceptron(object):
+    """
+    Single class kernelised perceptron.
+    """
     def __init__(self,kernel,k_params):
         self.w = np.array([])
         self.num_classes = 1
@@ -84,6 +89,9 @@ class KernelPerceptron(object):
 
 
 class VectorisedKernelPerceptron(object):
+    """
+    Multiclass 1-vs-all Kernelised Perceptron
+    """
     def __init__(self,kernel,k_params):
         self.W = np.array([])
         self.num_classes = 1
@@ -109,6 +117,9 @@ class VectorisedKernelPerceptron(object):
         self.num_classes = np.atleast_2d(y).shape[0]
         self.M = np.zeros(self.num_classes)
         gram = self.build_gram(X)
+        # Reset W matrix if the training data is reset. This is not a
+        # problem if we train multiple epochs over the same training dataset.
+        # This was done to simplify the calculation of the kernel gram matrix
         training_hash = hash(tuple(y))
         if self.data_hash != training_hash:
             self.data_hash = training_hash
@@ -128,10 +139,14 @@ class VectorisedKernelPerceptron(object):
         
     def predict(self,x):
         y_prob = self.predict_proba(x)
+        # Select the classifier with the largest margin
         return np.argmax(y_prob, axis=1)
 
 
 class onevsonePerceptron(object):
+    """
+    Multiclass 1-vs-1 Kernelised Perceptron
+    """
     def __init__(self,kernel,k_params):
         self.W = np.array([])
         self.num_classes = 1
@@ -154,6 +169,9 @@ class onevsonePerceptron(object):
         self.M = np.zeros(self.num_classes)
         gram = self.build_gram(X)
 
+        # Reset W matrix if the training data is reset. This is not a
+        # problem if we train multiple epochs over the same training dataset.
+        # This was done to simplify the calculation of the kernel gram matrix
         training_hash = hash(tuple(y))
         if self.data_hash != training_hash:
             self.data_hash = training_hash
@@ -174,9 +192,11 @@ class onevsonePerceptron(object):
         return np.dot(k.T, self.W)
 
     def predict(self,x):
+        # Run all K(K-1)/2 classifiers and take majority vote
         y_prob = self.predict_proba(x)
         y_prob = np.sign(y_prob)
         predictions = np.zeros(y_prob.shape)
+        # Fill predictions with the classes each classifier predicts
         for row in range(y_prob.shape[0]):
             predictions[row,:][y_prob[row,:]==1] = self.p_index[y_prob[row,:]==1,0]
             predictions[row,:][y_prob[row,:]==-1] = self.p_index[y_prob[row,:]==-1,1]

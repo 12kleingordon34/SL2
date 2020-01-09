@@ -49,6 +49,8 @@ def kernel_d_selection(Perceptron, X, y, d_vals, k=5, epochs=1, seed=0):
     Returns
     np.array(d_errors): test accuracies for all x-validated
         hyperparameters contained within d_vals
+    errors: np.array: test/train errors for each d parameter
+        across multiple epochs.
     """
     d_errors = np.zeros((len(d_vals), 2))
     errors = np.zeros((2*len(d_vals), epochs+2))
@@ -62,6 +64,7 @@ def kernel_d_selection(Perceptron, X, y, d_vals, k=5, epochs=1, seed=0):
         xval_error_std = np.array(error).std(axis=0)
         errors[(2*i):(2*i+2), :2] = [[d, 99999], [d, -99999]]
         errors[(2*i):(2*i+2), 2:] = [xval_error_mean, xval_error_std]
+        # Select the errors from the most recent epoch
         d_errors[i, :] = [xval_error_mean[-1], xval_error_std[-1]]
     return np.array(d_errors), errors
 
