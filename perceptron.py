@@ -13,22 +13,24 @@ class Perceptron(object):
     Single class non-kernel perceptron
     """
     def __init__(self):
-        self.w = np.array([])
-        self.num_classes = 1
-        self.M = 0
+        self.w = np.array([]) # weights
+        self.num_classes = 1 # number of classes
+        self.M = 0 # number of mistakes
         self.data_hash = None
 
     def train(self,X,y):
+        """Train function. Allows for multiple reruns on same data (epochs)"""
         m,d = X.shape
         self.num_classes = np.atleast_2d(y).shape[0]
-        
+        # check if data is new else do not reset weights
         training_hash = hash(tuple(y))
         if self.data_hash != training_hash:
             self.data_hash = training_hash
             self.w = np.zeros(d)
-        self._training_run(X, y, m)
+        self._training_run(X, y, m) # train
         
     def _training_run(self, X, y, m):
+        """Performs a training run"""
         for t in range(m):
             yhat = np.sign(np.dot(X[t,:],self.w))
             if yhat*y[t] <= 0:
@@ -37,12 +39,14 @@ class Perceptron(object):
                 
 
     def predict_proba(self,X):
+        """Returns margin on new data X"""
         if self.w.shape[0]==self.w.size:
            return(np.dot(X,self.w).flatten())
         return(np.dot(X,self.w))
         
 
     def predict(self,X):
+        """Predicts class for new data X"""
         return(np.sign(self.predict_proba(X)))
 
 

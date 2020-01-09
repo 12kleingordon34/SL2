@@ -15,10 +15,11 @@ import matplotlib.pyplot as plt
 # Linear search
 
 def find_least_m(n, algorithm,X_test,y_test,start=0,neg=-1):
+    """Linearn search method for finding m"""
     seed = np.random.randint(10000)
     m = start
     error = np.inf
-    while error > 0.1:
+    while error > 0.1: # increase m until error <0.1
         m += 1
         X_train, y_train = JALB(n,m,neg=neg,seed=seed)
         algorithm.train(X_train,y_train)
@@ -27,25 +28,27 @@ def find_least_m(n, algorithm,X_test,y_test,start=0,neg=-1):
     
 
 def find_avg_least_m(n,algorithm,start=0,num_runs=50,neg=-1,test_size=10000):
-    #size = int(np.log(1./0.05)/(2*(0.005)**2)) 
+    """Find mean m for single n"""
     X_test,y_test = JALB(n,test_size,neg=neg)
     M = np.zeros(num_runs)
-    for i in range(num_runs):
+    for i in range(num_runs): # repeat search x times
         if type(algorithm)==kNN:
             M[i] = find_least_m_exp(n,algorithm,X_test,y_test,start=max(start,1),neg=neg)
         else:
             M[i] = find_least_m(n,algorithm,X_test,y_test,start=start,neg=neg)
-        start = max(0,int(M[i]-10))
+        start = max(0,int(M[i]-10))# start new search based on result of previous
     return(np.mean(M),np.std(M))
     
 
 def find_trend_m(algorithm,neg=-1,max_n=150,num_runs=50,test_size=10000):
+    """Find m for range of n"""
     start =0
     M_mean = np.zeros(max_n-1)
     M_std = np.zeros(max_n-1)
-    for i in range(2,max_n+1):
+    for i in range(2,max_n+1): # for each n
+        # find average m
         M_mean[i-2],M_std[i-2] = find_avg_least_m(i,algorithm,start=start,num_runs=num_runs,neg=neg,test_size=test_size)
-        start = max(0,int(M_mean[i-2]-5))
+        start = max(0,int(M_mean[i-2]-5))# start new search based on result of previous
         print(M_mean[i-2])
     return(M_mean,M_std)
     
@@ -53,6 +56,9 @@ def find_trend_m(algorithm,neg=-1,max_n=150,num_runs=50,test_size=10000):
 # Exponential search
 
 def find_least_m_exp(n, algorithm,X_test,y_test,start=2,neg=-1):
+    """Exponential search method
+    """
+    
     seed = np.random.randint(10000)
     m = start
     
@@ -105,7 +111,7 @@ def plot_trend(M_mean,M_std,title):
     
     
 if __name__=="__main__":
-    # there's definitely a better way to do this
+    # run search for all algorithms
     A = ["Perceptron()","Winnow()","LinearRegression()",]
     Atitle = ["Perceptron","Winnow", "Least Squares","One nearest-neighbours"]
     for j, i in enumerate(A):
