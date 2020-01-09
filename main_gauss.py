@@ -93,8 +93,8 @@ def main():
     # Load Data
     data = np.loadtxt("zipcombo.dat")
     X,y = data_split(data,y_col=0)
-    gauss_c = list(range(-1, 8))
-    gauss_c = [2**i for i in gauss_c]
+    gauss_c = list(range(-6, 3))
+    gauss_c = [3**i for i in gauss_c]
 
     d_errors, full_errors = kernel_d_selection(
         VectorisedKernelPerceptron,X,y,k=5,d_vals = gauss_c,epochs = 8
@@ -111,8 +111,8 @@ def main():
     np.savetxt('confusion_gauss.csv', confusion, delimiter=',', fmt='%i')
     np.savetxt('d_prime_errors_gauss.csv', d_prime_errors, delimiter=',', fmt='%10.20f')
 
-    np.savetxt('d_errors.csv', d_errors, delimiter=',', fmt='%10.20f')
-    np.savetxt('full_errors.csv', full_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('d_errors_gauss.csv', d_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('full_errors_gauss.csv', full_errors, delimiter=',', fmt='%10.20f')
 
 
 if __name__ == '__main__':

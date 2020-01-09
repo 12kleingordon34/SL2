@@ -97,6 +97,8 @@ def main():
     d_errors, full_errors = kernel_d_selection(
         VectorisedKernelPerceptron,X,y,k=5,d_vals = list(range(1, 8)),epochs = 8
     )
+    np.savetxt('d_errors_poly.csv', d_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('full_errors_poly.csv', full_errors, delimiter=',', fmt='%10.20f')
     q1_train, q1_test = q1(
         VectorisedKernelPerceptron, X, y, poly_d, percentage=0.2, epochs=10, seed=0, runs=20
     )
@@ -109,8 +111,6 @@ def main():
     np.savetxt('confusion_poly.csv', confusion, delimiter=',', fmt='%i')
     np.savetxt('d_prime_errors_poly.csv', d_prime_errors, delimiter=',', fmt='%10.20f')
 
-    np.savetxt('d_errors_poly.csv', d_errors, delimiter=',', fmt='%10.20f')
-    np.savetxt('full_errors_poly.csv', full_errors, delimiter=',', fmt='%10.20f')
 
 
 if __name__ == '__main__':
