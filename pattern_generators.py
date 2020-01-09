@@ -8,7 +8,8 @@ import numpy as np
 
 def JALB(n,m,neg=-1,seed=None):
     """Generates m samples from {-1,1}^n
-        or {0,1}^n if neg = 0
+        or {0,1}^n if neg = 0 for 'just a little bit' (JALB)
+        problem
     """
     if seed is not None:
         np.random.seed(seed)

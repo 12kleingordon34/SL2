@@ -11,8 +11,6 @@ The codebase falls roughly into groups. The algorithm classes themselves, the ma
 * `logistic_regression.py`: Logistic Regressor 1-vs-all classifier
 * `perceptron.py`: Classes for regular, kernelised, 1-vs-all and 1-vs-1 kernelised perceptron
 * `winnow.py`: Winnow Classifer algorithm
-* `lrtest.py`: Obsolete logistic regressor classifiers (not used for investigation)
-* `lrtest2.py`: Obsolete logistic regressor classifiers (not used for investigation)
 
 ### Main files
 These main files contains the code to run the algorithms
@@ -24,6 +22,6 @@ These main files contains the code to run the algorithms
 * `main_pt2.py`: Solutions to Part 2 (Part 2)
 
 ### Utilities
-* `pattern_generators.py`: 
+* `pattern_generators.py`: Creates data for solving 'just a little bit' problem
 * `utilities.py`: Contains functions for cross validation and data processing tasks
 * `onevsonepairs.csv`: Contains mapping between the classes required for the 1-vs-1 perceptron classifier. Each classifier aims to distinguish column 1 from column 2.
