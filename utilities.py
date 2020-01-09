@@ -10,11 +10,18 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold, train_test_split
 
 
-def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
+def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0, conf=True):
     """
     Runs a stratified k-fold cross validation on
     perceptron P using dataset (X, y). Split can
     be controlled through a choice of seed
+
+    Returns
+    train_error: float
+    test_error: float
+    y_confusion: np.array: confusion values. Column 1
+        contains the true labels, column 2 contains the
+        incorrect classification labels
     """
     classification_accuracy = []
     X_train, X_test, y_train, y_test = train_test_split(
@@ -26,51 +33,19 @@ def stratified_k_fold(P, X, y, percentage=0.2, epochs=1, seed=0):
         )
     train_error = (P.predict(X_train) == y_train).mean()
     test_error = (y_pred == y_test).mean()
-    y_confusion = np.concatenate(
-        (y_pred[None,:].T, y_test[None,:].T),
-        axis=1
-    )
-    # Select only incorrect predictions
-    y_confusion = y_confusion[
-        (y_confusion[:,0] != y_confusion[:,1])
-    ]
-    return train_error, test_error, y_confusion
-
-
-def multip_strat_kfold(P_list, X, y, k, epochs=1, seed=0):
-    """
-    Runs a stratified k-fold cross validation on
-    a list of perceptrons list_P using dataset (X, y). Split can
-    be controlled through a choice of seed
-
-    THIS IS A TEST, MAY NOT BE NECESSARY. Note that this is not
-    vectorised. May need to work on this later.
-    """
-    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=seed)
-    accuracy_error = []
-    k_val= 1
-    for train_index, test_index in skf.split(X, y):
-        epoch_error = []
-        for e in range(epochs):
-            predictions = np.zeros((len(test_index), len(P_list)))
-            for i, P in enumerate(P_list):
-                acc = []
-                X_train, X_test = X[train_index], X[test_index]
-                print("TIME: {} X-Val: {} Epoch: {} Training Perceptron {}".format(
-                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'), k_val, e+1, i
-                ))
-                y_train = y_encode(y[train_index], i)
-                y_test = y_encode(y[test_index], i)
-                y_prob = perceptron_learning(
-                    P, X_train, X_test, y_train, y_test, num_epoch=1
-                )
-                predictions[:, i] = y_prob
-            predictions = np.argmax(predictions, axis=1)
-            error = (predictions == y[test_index]).mean()
-            epoch_error.append(error)
-        k_val += 1
-        accuracy_error.append(epoch_error)
-    return accuracy_error
+    print("Train error: {} Test error: {}".format(train_error, test_error))
+    if conf:
+        y_confusion = np.concatenate(
+            (y_pred[None,:].T, y_test[None,:].T),
+            axis=1
+        )
+        # Select only incorrect predictions
+        y_confusion = y_confusion[
+            (y_confusion[:,0] != y_confusion[:,1])
+        ]
+        return train_error, test_error, y_confusion
+    else:
+        return train_error, test_error
 
 
 def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
@@ -79,12 +54,13 @@ def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
     a list of perceptrons list_P using dataset (X, y). Split can
     be controlled through a choice of seed
 
-    THIS IS A TEST, MAY NOT BE NECESSARY. Note that this is not
-    vectorised. May need to work on this later.
+    Returns
+    accuracy: list[float]
+        contains the test errors for each xvalidation fold
     """
     print("Seed: {}".format(seed))
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=seed)
-    accuracy_error = []
+    accuracy= []
     k_val= 1
     for train_index, test_index in skf.split(X, y):
         epoch_error = []
@@ -97,11 +73,13 @@ def vectorised_p_strat_kfold(P, X, y, k, epochs=1, seed=0):
             y_pred = perceptron_learning(
                 P, X_train, X_test, y_train 
             )
-            error = (y_pred == y_test).mean()
-            epoch_error.append(error)
+            accuracy = (y_pred == y_test).mean()
+            train_accuracy = (P.predict(X_train) == y_train).mean()
+            epoch_accuracy.append(accuracy)
+            print("Test accuracy: {} Train accuracy: {}".format(accuracy, train_accuracy))
         k_val += 1
-        accuracy_error.append(epoch_error)
-    return accuracy_error
+        accuracy.append(epoch_accuracy)
+    return accuracy
 
 
 def perceptron_learning(P, X_train, X_test, y_train):

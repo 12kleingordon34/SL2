@@ -1,25 +1,29 @@
 # Supervised Learning -- CW2
-Initialisation
+Code by Daniel Manela and Daniel Trent (T1, 2019/20)
 
-## Comments on Part I Q4:
+## Code Summary
+The codebase falls roughly into groups. The algorithm classes themselves, the main files used to solve the CW problems, and accompanying utility files to fascilitate our solutions. Requires scipy, sklearn and numpy to run.
 
-Things to consider
-* Count number of times each image is predicted incorrectly
-* select the incorrect images with the largest distance from the hyperplane
-* Combine both methods -- select the data which has been most poorly predicted with the largest hyperplane distance
-* Keep running epochs until only 5 items are incorrectly predicted (may never happen -- to be studied further)
+### Algorithms
+* `kernels.py`: Contains the kernels 
+* `knn.py`: 1NN and weighted kNN classifiers
+* `least_squares.py`: Least Squares Regressor algorithm
+* `logistic_regression.py`: Logistic Regressor 1-vs-all classifier
+* `perceptron.py`: Classes for regular, kernelised, 1-vs-all and 1-vs-1 kernelised perceptron
+* `winnow.py`: Winnow Classifer algorithm
+* `lrtest.py`: Obsolete logistic regressor classifiers (not used for investigation)
+* `lrtest2.py`: Obsolete logistic regressor classifiers (not used for investigation)
 
-Multiclass classification methods:
-One against all: 
-  -- requires multiple training sessions
-  -- slower prediction
-This is a test  
-  
-Classification methods - Not perceptron:
+### Main files
+These main files contains the code to run the algorithms
+* `main_gauss.py`: Gaussian 1-vs-all Perceptron (Part 1)
+* `main_knn.py`: Weighted kNN (Part 1_
+* `main_lr_test.py`: Logistic Regressor (Part 1)
+* `main_poly.py`: Polynomial 1-vs-all Perceptron (Part 1)
+* `main_poly_onevsone.py`: Polynomial 1-vs-1 Perceptron
+* `main_pt2.py`: Solutions to Part 2 (Part 2)
 
-SVM -- hard to implement, 
-Multiclass Logistic Regression
-Random Forrest - (maybe not a good idea)
-Neural Net
-Nearest Neighbours
-Naive Bayes
+### Utilities
+* `pattern_generators.py`: 
+* `utilities.py`: Contains functions for cross validation and data processing tasks
+* `onevsonepairs.csv`: Contains mapping between the classes required for the 1-vs-1 perceptron classifier. Each classifier aims to distinguish column 1 from column 2.

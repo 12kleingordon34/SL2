@@ -1,9 +1,8 @@
 from datetime import datetime
 
 import numpy as np
-from sklearn.metrics.pairwise import rbf_kernel
 
-from perceptron import VectorisedKernelPerceptron
+from perceptron import onevsonePerceptron
 from kernels import polynomial_kernel, radial_basis_kernel
 from utilities import data_split, y_encode, perceptron_learning
 from utilities import stratified_k_fold, vectorised_p_strat_kfold
@@ -26,13 +25,13 @@ def q1(Perceptron, X, y, d_vals, percentage, epochs=1, seed=0, runs=1):
         test_e_runs = []
         for i, d in enumerate(d_vals):
             print(
-                'Time: {}, Run: {}, Gaussian: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'Time: {}, Run: {}, Polynomial: {}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 r+1,
                 d)
             )
-            P = Perceptron(rbf_kernel, k_params=d)
-            train_e, test_e, y_confusion = stratified_k_fold(
-                P, X, y, percentage=percentage, epochs=epochs, seed=seed+r
+            P = Perceptron(polynomial_kernel, k_params=d)
+            train_e, test_e = stratified_k_fold(
+                P, X, y, percentage=percentage, epochs=epochs, seed=seed+r, conf=False
             )
             train_e_runs.append(train_e)
             test_e_runs.append(test_e)
@@ -56,8 +55,8 @@ def kernel_d_selection(Perceptron, X, y, d_vals, k=5, epochs=1, seed=0):
     d_errors = np.zeros((len(d_vals), 2))
     errors = np.zeros((2*len(d_vals), epochs+2))
     for i, d in enumerate(d_vals):
-        print("Gaussian Kernel: d = {}".format(d))
-        p = Perceptron(rbf_kernel, k_params=d)
+        print("Polynomial Kernel: d = {}".format(d))
+        p = Perceptron(polynomial_kernel, k_params=d)
         error = vectorised_p_strat_kfold(
             p, X, y, k, epochs, seed
         )
@@ -65,6 +64,7 @@ def kernel_d_selection(Perceptron, X, y, d_vals, k=5, epochs=1, seed=0):
         xval_error_std = np.array(error).std(axis=0)
         errors[(2*i):(2*i+2), :2] = [[d, 99999], [d, -99999]]
         errors[(2*i):(2*i+2), 2:] = [xval_error_mean, xval_error_std]
+        # Select the errors from the most recent epoch
         d_errors[i, :] = [xval_error_mean[-1], xval_error_std[-1]]
     return np.array(d_errors), errors
 
@@ -84,17 +84,15 @@ def d_hyperparameter_selection(Perceptron,
     Returns
     np.array: each row contains the most performant hyperparameter
         for a single run, along with its train and test accuracy.
-    full_confusion: np.array: confusion values derived from test
-        runs of most optimal hyperparameter
     """
     d_prime_list = []
     train_errors = []
     test_errors = []
     full_confusion = np.array([]).reshape(0,2)
     for r in range(runs):
-        print('Run: {}'.format(r))
+        print('Run: {}'.format(r+1))
         d_errors, _ = kernel_d_selection(
-            VectorisedKernelPerceptron,
+            onevsonePerceptron,
             X,
             y,
             k=k,
@@ -102,44 +100,42 @@ def d_hyperparameter_selection(Perceptron,
             epochs=epochs,
             seed=seed+r
         )
+        # Select most performant hyperparameter
         d_prime = np.argmax(d_errors[:, 0]) + 1
-        P = Perceptron(rbf_kernel, d_prime)
-        train_error, test_error, y_confusion = stratified_k_fold(
-            P, X, y, percentage=(1/k), epochs=epochs, seed=seed+r
-        )
         print("D-Prime: {}".format(d_prime))
         print(d_errors[:, 0])
+        P = Perceptron(polynomial_kernel, d_prime)
+        train_error, test_error = stratified_k_fold(
+            P, X, y, percentage=(1/k), epochs=epochs, seed=seed+r, conf=False
+        )
         d_prime_list.append(d_prime)
         train_errors.append(train_error)
         test_errors.append(test_error)
-        full_confusion = np.concatenate((full_confusion, y_confusion))
-    return np.array([d_prime_list, train_errors, test_errors]), full_confusion
+    return np.array([d_prime_list, train_errors, test_errors])
 
 
 def main():
     # Load Data
     data = np.loadtxt("zipcombo.dat")
     X,y = data_split(data,y_col=0)
-    gauss_c = list(range(-6, 3))
-    gauss_c = [3**i for i in gauss_c]
+    poly_d = list(range(1, 8))
 
     d_errors, full_errors = kernel_d_selection(
-        VectorisedKernelPerceptron,X,y,k=5,d_vals = gauss_c,epochs = 8
+        onevsonePerceptron,X,y,k=5,d_vals = list(range(1, 8)),epochs = 10
     )
     q1_train, q1_test = q1(
-        VectorisedKernelPerceptron, X, y, gauss_c, 0.2, 10, 1, 20
+        onevsonePerceptron, X, y, poly_d, percentage=0.2, epochs=10, seed=0, runs=20
     )
-    np.savetxt('q1_train_errors_gauss.csv', q1_train, delimiter=',', fmt='%10.20f')
-    np.savetxt('q1_test_errors_gauss.csv', q1_test, delimiter=',', fmt='%10.20f')
+    np.savetxt('q1_train_errors_1v1.csv', q1_train, delimiter=',', fmt='%10.20f')
+    np.savetxt('q1_test_errors_1v1.csv', q1_test, delimiter=',', fmt='%10.20f')
 
-    d_prime_errors, confusion = d_hyperparameter_selection(
-        VectorisedKernelPerceptron, X, y, gauss_c, k=5, epochs=10, seed=1, runs=20
+    d_prime_errors = d_hyperparameter_selection(
+        onevsonePerceptron, X, y, d_vals=poly_d, k=5, epochs=10, seed=0, runs=20
     )
-    np.savetxt('confusion_gauss.csv', confusion, delimiter=',', fmt='%i')
-    np.savetxt('d_prime_errors_gauss.csv', d_prime_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('d_prime_errors_1v1.csv', d_prime_errors, delimiter=',', fmt='%10.20f')
 
-    np.savetxt('d_errors_gauss.csv', d_errors, delimiter=',', fmt='%10.20f')
-    np.savetxt('full_errors_gauss.csv', full_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('d_errors_1v1.csv', d_errors, delimiter=',', fmt='%10.20f')
+    np.savetxt('full_errors_1v1.csv', full_errors, delimiter=',', fmt='%10.20f')
 
 
 if __name__ == '__main__':
